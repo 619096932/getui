@@ -52,9 +52,9 @@ class HttpRequest
     /**
      * HttpRequest constructor.
      */
-    public function __construct()
+    public function __construct(array $guzz_params = [])
     {
-        $this->client = new Client();
+        $this->client = new Client($guzz_params);
     }
 
     /**
@@ -118,20 +118,20 @@ class HttpRequest
      */
     public function send()
     {
-        try{
+        try {
             $this->data['appkey'] = $this->config->getAppKey();
             $this->data['timestamp'] = $this->micro_time();
             $this->data['sign'] = hash("sha256", "{$this->config->getAppKey()}{$this->data['timestamp']}{$this->config->getMasterSecret()}");
-            if($this->authorization instanceof Authorization && method_exists($this->authorization,'getTokenAsString')){
+            if ($this->authorization instanceof Authorization && method_exists($this->authorization, 'getTokenAsString')) {
                 $this->headers['token'] = $this->authorization->getTokenAsString();
             }
             return json_decode($this->client->request($this->method, $this->gateway . $this->config->getAppId() . $this->api, [
                 'headers' => $this->headers,
                 'body' => json_encode($this->data)
             ])->getBody()->getContents(), 1);
-        }catch (\GuzzleHttp\Exception\ClientException $exception){
-            $data = json_encode($exception->getResponse()->getBody()->getContents(),1);
-            if($exception->getResponse()->getStatusCode() == 400 && $data['code'] == 20001){
+        } catch (\GuzzleHttp\Exception\ClientException $exception) {
+            $data = json_decode($exception->getResponse()->getBody()->getContents(), 1);
+            if ($exception->getResponse()->getStatusCode() == 400 && $data['code'] == 20001) {
                 $this->authorization->refurbishToken();
                 $this->send();
             }
