@@ -30,7 +30,7 @@ class Authorization
      * @param Cache $cache
      * @return $this
      */
-    public function withCacheDriver(Cache $cache):self
+    public function withCacheDriver(Cache $cache): self
     {
         $this->cache = $cache;
         return $this;
@@ -43,17 +43,18 @@ class Authorization
      */
     public function getTokenAsString(): string
     {
-        $key = 'cache:getui:token:'.$this->config->getAppId();
-        if($this->cache instanceof Cache && $this->cache->contains($key)){
+        $key = 'cache:getui:token:' . $this->config->getAppId();
+        if ($this->cache instanceof Cache && $this->cache->contains($key)) {
             return $this->cache->fetch($key);
         }
-        $res = (new HttpRequest())->withConfig($this->config)->withData([
-        ])->withApi('/auth')->withMethod('POST')->send();
-        if(isset($res['code']) && $res['code'] === 0){
-            $expire_time = intval($res['data']['expire_time']/1000);
+        $res = (new HttpRequest([
+            'verify' => false
+        ]))->withConfig($this->config)->withData([])->withApi('/auth')->withMethod('POST')->send();
+        if (isset($res['code']) && $res['code'] === 0) {
+            $expire_time = intval($res['data']['expire_time'] / 1000);
             $token = $res['data']['token'];
-            if($this->cache instanceof Cache){
-                $this->cache->save($key,$token,$expire_time-time());
+            if ($this->cache instanceof Cache) {
+                $this->cache->save($key, $token, $expire_time - time());
             }
             return $token;
         }
@@ -67,14 +68,15 @@ class Authorization
      */
     public function refurbishToken()
     {
-        $key = 'cache:getui:token'.$this->config->getAppId();
-        $res = (new HttpRequest())->withConfig($this->config)->withData([
-        ])->withApi('/auth')->withMethod('POST')->send();
-        if(isset($res['code']) && $res['code'] === 0){
-            $expire_time = intval($res['data']['expire_time']/1000);
+        $key = 'cache:getui:token' . $this->config->getAppId();
+        $res = (new HttpRequest([
+            'verify' => false
+        ]))->withConfig($this->config)->withData([])->withApi('/auth')->withMethod('POST')->send();
+        if (isset($res['code']) && $res['code'] === 0) {
+            $expire_time = intval($res['data']['expire_time'] / 1000);
             $token = $res['data']['token'];
-            if($this->cache instanceof Cache){
-                $this->cache->save($key,$token,$expire_time-time());
+            if ($this->cache instanceof Cache) {
+                $this->cache->save($key, $token, $expire_time - time());
             }
             return $token;
         }
