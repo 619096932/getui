@@ -11,14 +11,14 @@ use Getui\Message\MessageInterface;
  */
 class NotificationMessage implements MessageInterface
 {
-    public function toArray():array
+    public function toArray(): array
     {
         $data = $this->data;
         $data['payload'] = json_encode($data['payload']);
-        return ['notification'=>$data];
+        return ['notification' => $data];
     }
     protected $data = [
-        'click_type'=>'payload'
+        'click_type' => 'payload'
     ];
     public function setTitle(string $title)
     {
@@ -50,7 +50,14 @@ class NotificationMessage implements MessageInterface
      */
     public function setPayload(array $payload)
     {
-        $this->data['payload'] = array_merge($this->data['payload'],$payload);
+        $this->data['payload'] = array_merge($this->data['payload'], $payload);
+        return $this;
+    }
+
+    public function setChannelLevel(int $Level = 4)
+    {
+        $this->data['channel_level'] = $Level;
+
         return $this;
     }
 }
