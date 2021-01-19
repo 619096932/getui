@@ -23,13 +23,10 @@ class Push
      */
     public function toSingleCid(array $cid, NotificationMessage $message)
     {
-        $data = (new HttpRequest())->
-        withApi('/push/single/cid')->
-        withMethod('POST')->
-        withConfig($this->config)->
-        withToken($this->auth)->
-        withData([
-            'request_id' => rand(11111100000, 9999999900009),
+        $data = (new HttpRequest([
+            'verify' => false
+        ]))->withApi('/push/single/cid')->withMethod('POST')->withConfig($this->config)->withToken($this->auth)->withData([
+            'request_id' =>  uniqid('', true),
             'settings' => [
                 'ttl' => 3600000
             ],
@@ -37,10 +34,9 @@ class Push
                 'cid' => $cid
             ],
             'push_message' => $message->toArray()
-        ])->
-        send();
-        if (!(isset($data['msg']) && $data['msg'] === 'success' && isset($data['code']) &&$data['code'] === 0)) {
-            throw new \Exception(isset($data['msg'])?$data['msg']:'接口错误');
+        ])->send();
+        if (!(isset($data['msg']) && $data['msg'] === 'success' && isset($data['code']) && $data['code'] === 0)) {
+            throw new \Exception(isset($data['msg']) ? $data['msg'] : '接口错误');
         }
         return $data;
     }
@@ -53,21 +49,17 @@ class Push
      */
     public function toAll(NotificationMessage $message)
     {
-        return (new HttpRequest())->
-        withApi('/push/all')->
-        withMethod('POST')->
-        withConfig($this->config)->
-        withToken($this->auth)->
-        withData([
-            'request_id' => rand(11111100000, 9999999900009),
-//            'group_name'=>'',
+        return (new HttpRequest([
+            'verify' => false
+        ]))->withApi('/push/all')->withMethod('POST')->withConfig($this->config)->withToken($this->auth)->withData([
+            'request_id' =>  uniqid('', true),
+            //            'group_name'=>'',
             'settings' => [
                 'ttl' => 3600000
             ],
             'audience' => 'all',
             'push_message' => $message->toArray()
-        ])->
-        send();
+        ])->send();
     }
 
     /**
@@ -79,19 +71,14 @@ class Push
      */
     public function toSingleAlias(array $alias, NotificationMessage $message)
     {
-        return (new HttpRequest())->
-        withApi('/push/single/alias')->
-        withMethod('POST')->
-        withConfig($this->config)->
-        withToken($this->auth)->
-        withData([
-            'audience'=>[
+        return (new HttpRequest([
+            'verify' => false
+        ]))->withApi('/push/single/alias')->withMethod('POST')->withConfig($this->config)->withToken($this->auth)->withData([
+            'audience' => [
                 'alias' => $alias
             ],
-            'request_id' => rand(11111100000, 9999999900009),
+            'request_id' =>  uniqid('', true),
             'push_message' => $message->toArray()
-        ])->
-        send();
+        ])->send();
     }
-
 }
