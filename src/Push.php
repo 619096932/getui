@@ -21,7 +21,7 @@ class Push
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function toSingleCid(array $cid, NotificationMessage $message)
+    public function toSingleCid(array $cid, NotificationMessage $message, $push_channel)
     {
         $data = (new HttpRequest([
             'verify' => false
@@ -33,7 +33,8 @@ class Push
             'audience' => [
                 'cid' => $cid
             ],
-            'push_message' => $message->toArray()
+            'push_message' => $message->toArray(),
+            'push_channel' => $push_channel
         ])->send();
         if (!(isset($data['msg']) && $data['msg'] === 'success' && isset($data['code']) && $data['code'] === 0)) {
             throw new \Exception(isset($data['msg']) ? $data['msg'] : '接口错误');
@@ -47,7 +48,7 @@ class Push
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function toAll(NotificationMessage $message)
+    public function toAll(NotificationMessage $message, $push_channel)
     {
         return (new HttpRequest([
             'verify' => false
@@ -58,7 +59,8 @@ class Push
                 'ttl' => 3600000
             ],
             'audience' => 'all',
-            'push_message' => $message->toArray()
+            'push_message' => $message->toArray(),
+            'push_channel' => $push_channel
         ])->send();
     }
 
@@ -69,7 +71,7 @@ class Push
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function toSingleAlias(array $alias, NotificationMessage $message)
+    public function toSingleAlias(array $alias, NotificationMessage $message, $push_channel)
     {
         return (new HttpRequest([
             'verify' => false
@@ -78,7 +80,8 @@ class Push
                 'alias' => $alias
             ],
             'request_id' =>  uniqid('', true),
-            'push_message' => $message->toArray()
+            'push_message' => $message->toArray(),
+            'push_channel' => $push_channel
         ])->send();
     }
 }
