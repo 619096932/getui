@@ -54,7 +54,12 @@ class HttpRequest
      */
     public function __construct(array $guzz_params = [])
     {
-        $this->client = new Client($guzz_params);
+        $this->client = new Client(array_merge(
+            [
+                'timeout' => 1.5
+            ],
+            $guzz_params
+        ));
     }
 
     /**
@@ -131,11 +136,13 @@ class HttpRequest
             ])->getBody()->getContents(), 1);
         } catch (\GuzzleHttp\Exception\ClientException $exception) {
             $data = json_decode($exception->getResponse()->getBody()->getContents(), 1);
-            if ($exception->getResponse()->getStatusCode() == 400 && $data['code'] == 20001) {
+            if ($data['code'] == 10001) {
                 $this->authorization->refurbishToken();
                 $this->send();
+            } else {
+                println('PUSHERR: ' . $data['msg']);
+                return false;
             }
-            throw $exception;
         }
     }
 
