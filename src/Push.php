@@ -36,10 +36,6 @@ class Push
             'push_message' => $message->toArray(),
             'push_channel' => $push_channel
         ])->send();
-        if (!(isset($data['msg']) && $data['msg'] === 'success' && isset($data['code']) && $data['code'] === 0)) {
-            throw new \Exception(isset($data['msg']) ? $data['msg'] : '接口错误');
-        }
-        return $data;
     }
 
     /**
